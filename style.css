@@ -1,0 +1,143 @@
+/* --- style.css --- */
+
+/* --- 1. Import Czcionki i Globalny Reset --- */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+body {
+  background-color: #020617;
+  color: #e2e8f0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+/* --- 2. Ustawienia Canvasa i Tła --- */
+
+#animationCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  background-color: #c2ecff00;
+  background-image: url("./background3.png");
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: overlay;
+
+  /* Płynne przejście filtra */
+  transition: filter 0.5s ease-in-out;
+}
+
+#vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 15;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 65%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+/* --- 3. Kontener UI i Panele "Glassmorphism" --- */
+
+.ui-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Wyrównaj do dołu */
+  align-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.ui-panel {
+  pointer-events: all;
+  background-color: rgba(18, 26, 43, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* --- 4. Stylowanie Poszczególnych Elementów HUD --- */
+
+#statusMessage {
+  position: absolute;
+  bottom: 24px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e2e8f0;
+  max-width: 500px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(100px); /* Schowany pod ekranem */
+}
+
+/* --- 5. Logika Pokazywania/Ukrywania (sterowana przez JS) --- */
+
+body.state-loading #statusMessage,
+body.state-playing #statusMessage {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.state-menu #statusMessage,
+body.state-round-over #statusMessage {
+  opacity: 0;
+  transform: translateY(100px);
+}
+
+/* ===================================================================== */
+/* --- 6. NOWE FILTRY ARENY (MOTYWY) --- */
+/* ===================================================================== */
+
+/* Komentarz: Zakładam, że Twoje oryginalne tekstury są niebieskawo-śnieżne.
+  Te filtry są zaprojektowane, by drastycznie zmienić TĘ paletę.
+*/
+
+/* Motyw Domyślny (bez zmian) */
+#animationCanvas.theme-normal {
+  filter: none;
+}
+
+/* Motyw Lodowy (Mroźny) 
+  Tworzy "negatyw" kolorów, dając efekt mroźnej, ciemnej nocy.
+  Jasne obszary stają się ciemnoniebieskie, cienie stają się jasne.
+*/
+#animationCanvas.theme-ice {
+  filter: invert(100%) hue-rotate(180deg) saturate(150%) brightness(1.1)
+    contrast(1.1);
+}
+
+/* Motyw Ognisty (Piekielny)
+  Używa `sepia` do zamiany wszystkiego na brąz, a następnie obraca kolory 
+  w stronę czerwieni i pomarańczu, dając efekt "spalonej ziemi".
+*/
+#animationCanvas.theme-fire {
+  filter: sepia(90%) hue-rotate(-45deg) saturate(300%) brightness(0.9)
+    contrast(1.2);
+}
+
+/* Motyw Toksyczny (Bagno)
+  Przesuwa niebieskie barwy w stronę intensywnej zieleni.
+*/
+#animationCanvas.theme-dark { /* Nazwa z main.js to "dark", ale zrobimy "toxic" */
+  filter: hue-rotate(100deg) saturate(200%) brightness(0.9) contrast(1.2);
+}
