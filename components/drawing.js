@@ -138,7 +138,7 @@ function drawBlocks(ctx, boxFrames, worldBlocks, worldOffsetX, worldOffsetY) {
     // --- POCZĄTEK POPRAWKI ---
     // Specjalna logika rysowania dla czarnej granicy
     if (block.type === 4) {
-      ctx.fillStyle = "#c6cfc7ff"; // Ten sam kolor co tło body
+      ctx.fillStyle = "#afd9daff"; // Ten sam kolor co tło body
       ctx.fillRect(canvasX, canvasY, BOX_SIZE, BOX_SIZE);
       continue; // Przejdź do następnego bloku
     }
@@ -383,46 +383,25 @@ function drawProjectile(ctx, frames, projectile, worldOffsetX, worldOffsetY) {
 
 /**
  * Rysuje strumień śniegu z miotacza (NOWA, WYDAJNA WERSJA).
- * Używa jednego gradientu i minimalnej liczby cząsteczek.
  */
 function drawSnowthrowerStream(ctx, player, worldOffsetX, worldOffsetY) {
   if (!player.isFiring || player.bombType !== "snowthrower") {
     return;
   }
 
-  // Definicje strumienia
   const range = SNOWTHROWER_RANGE;
   const maxWidth = SNOWTHROWER_WIDTH * 3.5; // Szeroki stożek
-  const particleCount = 70; // Mała, wydajna liczba cząsteczek
-  const particleBaseSize = 3; // Małe cząsteczki
-  const offsetDistance = 20; // Przesunięcie źródła strumienia od środka gracza
+  const particleCount = 70; 
+  const particleBaseSize = 3; 
 
-  let startX = player.worldX - worldOffsetX;
-  let startY = player.worldY - worldOffsetY;
-  const timestamp = performance.now(); // Do animacji "drżenia"
-
-  // Przesunięcie punktu startowego strumienia w kierunku strzału
-  // (żeby wylatywał z snowthrowera, a nie ze środka kaczki)
-  switch (player.currentStatus) {
-    case "back":
-      startY -= offsetDistance;
-      break;
-    case "front":
-      startY += offsetDistance;
-      break;
-    case "left":
-      startX -= offsetDistance;
-      break;
-    case "right":
-      startX += offsetDistance;
-      break;
-  }
+  const startX = player.worldX - worldOffsetX;
+  const startY = player.worldY - worldOffsetY;
+  const timestamp = performance.now(); 
 
   ctx.save();
 
-  // --- 1. Oblicz punkty stożka ---
-  let x1 = startX, y1 = startY, x2 = startX, y2 = startY; // Dwa punkty końcowe stożka
-  let midX = startX, midY = startY; // Środek końca stożka (dla gradientu)
+  let x1 = startX, y1 = startY, x2 = startX, y2 = startY; 
+  let midX = startX, midY = startY; 
   
   switch (player.currentStatus) {
     case "back":  
@@ -445,30 +424,27 @@ function drawSnowthrowerStream(ctx, player, worldOffsetX, worldOffsetY) {
       x1 = midX; y1 = startY - maxWidth / 2;
       x2 = midX; y2 = startY + maxWidth / 2;
       break;
-    default: // Domyślnie w dół
+    default: 
       midY = startY + range;
       x1 = startX - maxWidth / 2; y1 = midY;
       x2 = startX + maxWidth / 2; y2 = midY;
       break;
   }
 
-  // --- 2. Rysuj Bazowy Stożek (Gradient - aby zasłonić podłoże) ---
   const grad = ctx.createLinearGradient(startX, startY, midX, midY);
-  grad.addColorStop(0, 'rgba(210, 230, 255, 0.8)'); // Gęsto przy lufie (80% alpha)
-  grad.addColorStop(0.3, 'rgba(210, 230, 255, 0.7)'); // Utrzymaj gęstość
-  grad.addColorStop(1, 'rgba(180, 210, 240, 0.05)'); // Bardzo miękki, przezroczysty koniec
+  grad.addColorStop(0, 'rgba(210, 230, 255, 0.8)'); 
+  grad.addColorStop(0.3, 'rgba(210, 230, 255, 0.7)'); 
+  grad.addColorStop(1, 'rgba(180, 210, 240, 0.05)'); 
 
-  // Narysuj trójkątny stożek
   ctx.beginPath();
-  ctx.moveTo(startX, startY); // Wierzchołek
-  ctx.lineTo(x1, y1);         // Róg 1
-  ctx.lineTo(x2, y2);         // Róg 2
+  ctx.moveTo(startX, startY); 
+  ctx.lineTo(x1, y1);         
+  ctx.lineTo(x2, y2);         
   ctx.closePath();
   ctx.fillStyle = grad;
-  ctx.fill(); // Wypełnij stożek
+  ctx.fill(); 
 
-  // --- 3. Rysuj Cząsteczki "Śniegu" (dla imitacji ruchu) ---
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; // Bardziej widoczne cząsteczki
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'; 
   
   for (let i = 0; i < particleCount; i++) {
     const lengthRatio = Math.random();
@@ -631,6 +607,28 @@ export function drawMenu(ctx) {
     ctx.font = "600 26px Inter";
     ctx.fillText(opt.text, btnX + 130, btnY + buttonHeight / 2);
   }
+
+  // --- NOWA SEKCJA: INSTRUKCJE ---
+  // Oblicz pozycję Y poniżej ostatniego przycisku
+  const helpTextY = startY + options.length * (buttonHeight + spacing) + 10;
+
+  ctx.fillStyle = "#e2e8f0"; // Jasnoszary
+  ctx.font = "500 20px Inter"; // "Medium"
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.fillText(
+    "Naciśnij [ I ], aby zobaczyć sterowanie",
+    canvasWidth / 2,
+    helpTextY
+  );
+  
+  ctx.fillText(
+    "Naciśnij [ T ], aby zmienić motyw areny",
+    canvasWidth / 2,
+    helpTextY + 30 // 30px niżej
+  );
+  // --- KONIEC NOWEJ SEKCJI ---
 }
 
 /**
@@ -674,3 +672,116 @@ export function drawGameOver(ctx, livingPlayers, livingBots, numPlayers) {
   ctx.globalAlpha = 1.0;
 }
 
+// =====================================================================
+// SEKCJA 5: TŁUMACZ MOTYWÓW (POPRAWIONY)
+// =====================================================================
+
+/**
+ * Zwraca kod filtra dla Canvas API na podstawie nazwy motywu.
+ * @param {string} themeName - Nazwa motywu (np. "normal", "ice", "fire")
+ * @returns {string} Kod filtra CSS
+ */
+export function getThemeFilter(themeName) {
+  switch (themeName) {
+    case "ice":
+      return "invert(100%) hue-rotate(180deg) saturate(150%) brightness(1.1) contrast(1.1)";
+    case "fire":
+      return "sepia(90%) hue-rotate(-45deg) saturate(300%) brightness(0.9) contrast(1.2)";
+    case "dark":
+      return "hue-rotate(100deg) saturate(200%) brightness(0.9) contrast(1.2)";
+    case "normal":
+    default:
+      return "none";
+  }
+}
+
+// =====================================================================
+// SEKCJA 6: EKRAN INFORMACYJNY (POPRAWIONY)
+// =====================================================================
+
+/**
+ * Rysuje ekran "Sterowanie", pokazujący klawisze dla wszystkich graczy.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Array<Object>} playerKeyMaps - Tablica mapowań klawiszy z config.js
+ */
+export function drawInfoScreen(ctx, playerKeyMaps) {
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+
+  // 1. Tło (takie samo jak w menu)
+  ctx.fillStyle = "rgba(2, 6, 23, 0.85)";
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  // 2. Tytuł
+  ctx.fillStyle = "white";
+  ctx.font = "bold 48px Inter";
+  ctx.textAlign = "center";
+  ctx.shadowColor = "rgba(59, 130, 246, 0.8)";
+  ctx.shadowBlur = 15;
+  ctx.fillText("STEROWANIE", canvasWidth / 2, canvasHeight * 0.15);
+  ctx.shadowBlur = 0;
+
+  // 3. Instrukcja powrotu (migocząca)
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = "500 24px Inter";
+  ctx.globalAlpha = Math.sin(performance.now() / 300) * 0.4 + 0.6;
+  ctx.fillText(
+    "Naciśnij [ ESC ] lub [ I ], aby wrócić do Menu",
+    canvasWidth / 2,
+    canvasHeight * 0.9
+  );
+  ctx.globalAlpha = 1.0;
+
+  // 4. Rysowanie tabeli klawiszy
+  const startY = canvasHeight * 0.3;
+  const lineHeight = 40;
+  // Dzielimy szerokość na 5 kolumn: 1 na etykiety, 4 na graczy
+  const columnWidth = canvasWidth / 5;
+  
+  const actions = [
+    { label: "Góra", key: "up" },
+    { label: "Dół", key: "down" },
+    { label: "Lewo", key: "left" },
+    { label: "Prawo", key: "right" },
+    { label: "Bomba", key: "bomb" },
+    { label: "Przełącz", key: "switch" },
+    { label: "Ściana", key: "wall" },
+    { label: "Teleport", key: "teleport" },
+  ];
+
+  // --- Kolumna 1: Etykiety Akcji ---
+  ctx.font = "600 20px Inter";
+  ctx.textAlign = "right";
+  actions.forEach((action, index) => {
+    ctx.fillStyle = "white";
+    ctx.fillText(action.label + ":", columnWidth - 20, startY + index * lineHeight);
+  });
+
+  // --- Kolumny 2-5: Klawisze Graczy ---
+  playerKeyMaps.forEach((keyMap, playerIndex) => {
+    // Oblicz środek kolumny dla tego gracza
+    const playerX = columnWidth * (playerIndex + 1.5);
+
+    // Nagłówek (Gracz 1, Gracz 2, ...)
+    ctx.fillStyle = "rgb(59, 130, 246)"; // Niebieski
+    ctx.font = "bold 24px Inter";
+    ctx.textAlign = "center";
+    ctx.fillText(`Gracz ${playerIndex + 1}`, playerX, startY - 50);
+
+    // Rysowanie klawiszy dla tego gracza
+    ctx.font = "500 20px Inter";
+    actions.forEach((action, actionIndex) => {
+      let keyText = keyMap[action.key];
+
+      // Formatowanie specjalnych klawiszy dla czytelności
+      if (keyText === " ") keyText = "Spacja";
+      if (keyText === "ArrowUp") keyText = "↑";
+      if (keyText === "ArrowDown") keyText = "↓";
+      if (keyText === "ArrowLeft") keyText = "←";
+      if (keyText === "ArrowRight") keyText = "→";
+      
+      ctx.fillStyle = "#e2e8f0"; // Jasnoszary
+      ctx.fillText(keyText, playerX, startY + actionIndex * lineHeight);
+    });
+  });
+}
